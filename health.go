@@ -15,7 +15,7 @@ func NewRouter(lbs []LBServer) *Router {
 	return &Router{lbs: lbs}
 }
 
-func isHealthy(url string) bool {
+func isHealthy(healthURL string) bool {
 	client := http.Client{
 		Timeout: 2 * time.Second,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -23,7 +23,7 @@ func isHealthy(url string) bool {
 		},
 	}
 
-	resp, err := client.Get(url + "/health")
+	resp, err := client.Get(healthURL)
 	if err != nil {
 		return false
 	}
@@ -48,7 +48,7 @@ func (r *Router) selectHealthyLB() (LBServer, bool) {
 			continue
 		}
 
-		if isHealthy(lb.URL) {
+		if isHealthy(lb.Health) {
 			return lb, true
 		}
 	}
@@ -64,7 +64,7 @@ func (r *Router) RouteHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// 307 keeps the original HTTP method.
-	http.Redirect(w, req, lb.URL, http.StatusTemporaryRedirect)
+	http.Redirect(w, req, lb.BaseURL, http.StatusTemporaryRedirect)
 }
 
 func (r *Router) HealthHandler(w http.ResponseWriter, req *http.Request) {

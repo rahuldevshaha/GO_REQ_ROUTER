@@ -6,9 +6,10 @@ import (
 )
 
 type LBServer struct {
-	Name   string `json:"name"`
-	URL    string `json:"url"`
-	Enable bool   `json:"enable"`
+	Name    string `json:"name"`
+	BaseURL string `json:"base_url"`
+	Health  string `json:"health"`
+	Enable  bool   `json:"enable"`
 }
 
 func loadLBs(filename string) ([]LBServer, error) {

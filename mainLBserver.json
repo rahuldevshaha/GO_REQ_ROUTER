@@ -1,17 +1,20 @@
 [
   {
     "name": "main-lb-1",
-    "url": "https://lb1.example.com",
+    "base_url": "https://lb1.example.com",
+    "health": "https://lb1.example.com/health",
     "enable": true
   },
   {
     "name": "main-lb-2",
-    "url": "https://lb2.example.com",
+    "base_url": "https://lb2.example.com",
+    "health": "https://lb2.example.com/health",
     "enable": true
   },
   {
     "name": "main-lb-3",
-    "url": "https://lb3.example.com",
+    "base_url": "https://lb3.example.com",
+    "health": "https://lb3.example.com/health",
     "enable": false
   }
 ]

@@ -123,17 +123,20 @@ No enabled healthy Main LB available</pre>
 <pre>[
   {
     "name": "main-lb-1",
-    "url": "https://lb1.example.com",
+    "base_url": "https://lb1.example.com",
+    "health": "https://lb1.example.com/health",
     "enable": true
   },
   {
     "name": "main-lb-2",
-    "url": "https://lb2.example.com",
+    "base_url": "https://lb2.example.com",
+    "health": "https://lb2.example.com/health",
     "enable": true
   },
   {
     "name": "main-lb-3",
-    "url": "https://lb3.example.com",
+    "base_url": "https://lb3.example.com",
+    "health": "https://lb3.example.com/health",
     "enable": false
   }
 ]</pre>
@@ -141,7 +144,8 @@ No enabled healthy Main LB available</pre>
 <table>
   <tr><th>Field</th><th>Meaning</th></tr>
   <tr><td><code>name</code></td><td>Main LB name</td></tr>
-  <tr><td><code>url</code></td><td>Main LB endpoint</td></tr>
+  <tr><td><code>base_url</code></td><td>Main LB endpoint the client is redirected to</td></tr>
+  <tr><td><code>health</code></td><td>Full URL the Router calls to check this LB's health</td></tr>
   <tr><td><code>enable</code></td><td><code>true</code> = eligible; <code>false</code> = never selected</td></tr>
 </table>
 

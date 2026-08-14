@@ -97,17 +97,20 @@ File: `mainLBserver.json`
 [
   {
     "name": "main-lb-1",
-    "url": "https://lb1.example.com",
+    "base_url": "https://lb1.example.com",
+    "health": "https://lb1.example.com/health",
     "enable": true
   },
   {
     "name": "main-lb-2",
-    "url": "https://lb2.example.com",
+    "base_url": "https://lb2.example.com",
+    "health": "https://lb2.example.com/health",
     "enable": true
   },
   {
     "name": "main-lb-3",
-    "url": "https://lb3.example.com",
+    "base_url": "https://lb3.example.com",
+    "health": "https://lb3.example.com/health",
     "enable": false
   }
 ]
@@ -118,7 +121,8 @@ File: `mainLBserver.json`
 | Field | Meaning |
 |---|---|
 | `name` | Main LB name |
-| `url` | Main LB endpoint |
+| `base_url` | Main LB endpoint the client is redirected to |
+| `health` | Full URL the Router calls to check this LB's health |
 | `enable` | `true` = eligible, `false` = never selected |
 
 A disabled Main LB is never returned, even if its health check succeeds.
@@ -454,17 +458,20 @@ Every Router should have the same `mainLBserver.json`:
 [
   {
     "name": "main-lb-1",
-    "url": "https://lb1.example.com",
+    "base_url": "https://lb1.example.com",
+    "health": "https://lb1.example.com/health",
     "enable": true
   },
   {
     "name": "main-lb-2",
-    "url": "https://lb2.example.com",
+    "base_url": "https://lb2.example.com",
+    "health": "https://lb2.example.com/health",
     "enable": true
   },
   {
     "name": "main-lb-3",
-    "url": "https://lb3.example.com",
+    "base_url": "https://lb3.example.com",
+    "health": "https://lb3.example.com/health",
     "enable": false
   }
 ]
