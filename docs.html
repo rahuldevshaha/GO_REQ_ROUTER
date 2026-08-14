@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Go Router API Docs</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f8fa;
+      color: #1f2937;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 70px;
+    }
+    header {
+      margin-bottom: 35px;
+    }
+    h1 { margin: 0 0 8px; }
+    h2 {
+      margin-top: 36px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    h3 { margin-top: 25px; }
+    .muted { color: #6b7280; }
+    .base-url {
+      display: inline-block;
+      background: #111827;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-family: monospace;
+      margin-top: 10px;
+    }
+    .endpoint {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+    .method {
+      display: inline-block;
+      font-weight: bold;
+      padding: 5px 9px;
+      border-radius: 5px;
+      background: #e5e7eb;
+      margin-right: 8px;
+      font-family: monospace;
+    }
+    code {
+      background: #eef0f2;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+    }
+    pre {
+      background: #111827;
+      color: #e5e7eb;
+      padding: 16px;
+      border-radius: 7px;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 11px;
+      text-align: left;
+    }
+    th { background: #f0f1f3; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Go Router API</h1>
+      <p class="muted">
+        Lightweight router that checks Main Load Balancers and redirects
+        clients to a healthy endpoint.
+      </p>
+
+      <div class="base-url">http://localhost:8080</div>
+    </header>
+
+    <h2>API Endpoints</h2>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method">GET</span>
+        <code>/</code>
+      </h3>
+
+      <p>Returns this API documentation page.</p>
+
+      <pre>GET http://localhost:8080/</pre>
+
+      <p><strong>Response:</strong></p>
+      <pre>HTML document</pre>
+    </div>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method">GET</span>
+        <code>/health</code>
+      </h3>
+
+      <p>Checks whether the Router itself is running.</p>
+
+      <pre>GET http://localhost:8080/health</pre>
+
+      <p><strong>Response:</strong></p>
+      <pre>HTTP/1.1 200 OK
+
+router ok</pre>
+    </div>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method">GET</span>
+        <code>/route</code>
+      </h3>
+
+      <p>
+        Checks the configured Main LB endpoints and redirects the client
+        to a healthy Main LB.
+      </p>
+
+      <pre>GET http://localhost:8080/route</pre>
+
+      <p><strong>Healthy LB response:</strong></p>
+
+      <pre>HTTP/1.1 307 Temporary Redirect
+Location: https://lb2.example.com</pre>
+
+      <p>
+        The client/browser follows the <code>Location</code> automatically.
+        The Router does not proxy the actual traffic.
+      </p>
+    </div>
+
+    <div class="endpoint">
+      <h3>503 — No Healthy Main LB</h3>
+
+      <p>If every configured Main LB fails its health check:</p>
+
+      <pre>HTTP/1.1 503 Service Unavailable
+
+No healthy Main LB available</pre>
+    </div>
+
+    <h2>Main LB Configuration</h2>
+
+    <p>
+      Main LB endpoints are stored in
+      <code>mainLBserver.json</code>.
+    </p>
+
+    <pre>[
+  {
+    "name": "main-lb-1",
+    "url": "https://lb1.example.com",
+    "enable": true
+  },
+  {
+    "name": "main-lb-2",
+    "url": "https://lb2.example.com",
+    "enable": true
+  },
+  {
+    "name": "main-lb-3",
+    "url": "https://lb3.example.com",
+    "enable": false
+  }
+]</pre>
+
+    <h3>Enable / Disable</h3>
+
+    <p>
+      <code>enable: true</code> means the Main LB is eligible for routing.
+      <code>enable: false</code> completely excludes it from routing, even
+      when its health check is successful.
+    </p>
+
+    <h2>Request Flow</h2>
+
+    <table>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Client calls <code>/route</code></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Router checks Main LB health</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Router selects a healthy LB</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Router returns HTTP 307 redirect</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Client connects directly to the selected LB</td>
+      </tr>
+    </table>
+
+
+    <h2>Client Integration</h2>
+
+    <p>
+      The client does not need to know the Main LB addresses.
+      It only calls the Router endpoint.
+    </p>
+
+    <pre>Client
+  |
+  | GET /route
+  v
+router.example.com
+  |
+  | 307 Temporary Redirect
+  | Location: https://selected-lb.example.com
+  v
+Client connects directly to selected Main LB</pre>
+
+    <h3>Client Request</h3>
+
+    <pre>GET https://router.example.com/route</pre>
+
+    <h3>Router Response</h3>
+
+    <pre>HTTP/1.1 307 Temporary Redirect
+Location: https://main-lb-2.example.com</pre>
+
+    <p>
+      Browsers and normal HTTP clients can follow the redirect automatically.
+      After the redirect, the client communicates directly with the selected
+      Main LB, so Router does not carry the stream/download response traffic.
+    </p>
+
+    <h3>Browser Example</h3>
+
+    <pre>fetch("https://router.example.com/route")
+  .then(response =&gt; {
+    // The HTTP client/browser follows the redirect.
+    return response;
+  });</pre>
+
+    <h3>Important</h3>
+
+    <p>
+      Multiple Router instances need an entry/distribution mechanism so that
+      <code>router.example.com</code> can reach Router 1, Router 2, Router 3, etc.
+      Simple DNS round-robin distributes DNS answers but does not understand
+      Router load or health. For health/load-aware routing, use a dedicated
+      routing/load-balancing mechanism.
+    </p>
+
+
+    <h2>Client-Side Implementation</h2>
+
+    <p>
+      The recommended client flow is to ask the Router for a Main LB when a
+      server selection is needed, then reuse the selected Main LB for normal
+      API requests. If the selected LB becomes unavailable, request a new
+      route from the Router.
+    </p>
+
+    <h3>Using Fetch</h3>
+
+    <pre>async function getMainLB() {
+  const response = await fetch(
+    "https://router.example.com/route",
+    { redirect: "manual" }
+  );
+
+  if (response.status !== 307) {
+    throw new Error("No healthy Main LB available");
+  }
+
+  return response.headers.get("Location");
+}
+
+async function callAPI(path) {
+  const baseURL = await getMainLB();
+
+  const response = await fetch(baseURL + path);
+
+  if (!response.ok) {
+    throw new Error("API request failed");
+  }
+
+  return response.json();
+}
+
+// Example
+const movie = await callAPI("/movies/123");</pre>
+
+    <h3>Using Axios</h3>
+
+    <pre>import axios from "axios";
+
+async function getMainLB() {
+  const response = await axios.get(
+    "https://router.example.com/route",
+    {
+      maxRedirects: 0,
+      validateStatus: status =&gt; status === 307
+    }
+  );
+
+  return response.headers.location;
+}
+
+async function callAPI(path) {
+  const baseURL = await getMainLB();
+
+  const response = await axios.get(baseURL + path);
+
+  return response.data;
+}
+
+// Example
+const movie = await callAPI("/movies/123");</pre>
+
+    <h3>Recommended LB Reuse</h3>
+
+    <p>
+      Do not call <code>/route</code> before every normal request unless that
+      behavior is specifically required. The client can keep the selected Main
+      LB and use it for requests such as login, movie details, search, etc.
+    </p>
+
+    <pre>Client
+  |
+  | /route
+  v
+Router
+  |
+  | 307 + Location
+  v
+Main LB 2
+  |
+  +---- /login
+  +---- /movies/123
+  +---- /search?q=...
+  +---- /profile
+
+If Main LB 2 fails:
+Client
+  |
+  | /route
+  v
+Router
+  |
+  | 307 + Location
+  v
+Main LB 1</pre>
+
+    <h3>Important: Browser CORS</h3>
+
+    <p>
+      If browser JavaScript reads the redirect response manually, configure
+      CORS on the Router and allow the required client origin. Alternatively,
+      the application can use a normal HTTP redirect flow where the browser
+      follows the redirect automatically.
+    </p>
+
+    <h2>Run</h2>
+
+    <pre>go mod tidy
+go run .</pre>
+
+  </div>
+</body>
+</html>

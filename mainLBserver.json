@@ -1,0 +1,17 @@
+[
+  {
+    "name": "main-lb-1",
+    "url": "https://lb1.example.com",
+    "enable": true
+  },
+  {
+    "name": "main-lb-2",
+    "url": "https://lb2.example.com",
+    "enable": true
+  },
+  {
+    "name": "main-lb-3",
+    "url": "https://lb3.example.com",
+    "enable": false
+  }
+]
