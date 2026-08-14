@@ -91,7 +91,7 @@
         clients to a healthy endpoint.
       </p>
 
-      <div class="base-url">{base_url}</div>
+      <div class="base-url">http://localhost:8080</div>
     </header>
 
     <h2>API Endpoints</h2>
@@ -104,7 +104,7 @@
 
       <p>Returns this API documentation page.</p>
 
-      <pre>GET {base_url}/</pre>
+      <pre>GET http://localhost:8080/</pre>
 
       <p><strong>Response:</strong></p>
       <pre>HTML document</pre>
@@ -118,7 +118,7 @@
 
       <p>Checks whether the Router itself is running.</p>
 
-      <pre>GET {base_url}/health</pre>
+      <pre>GET http://localhost:8080/health</pre>
 
       <p><strong>Response:</strong></p>
       <pre>HTTP/1.1 200 OK
@@ -137,7 +137,7 @@ router ok</pre>
         to a healthy Main LB.
       </p>
 
-      <pre>GET {base_url}/route</pre>
+      <pre>GET http://localhost:8080/route</pre>
 
       <p><strong>Healthy LB response:</strong></p>
 
@@ -243,7 +243,7 @@ Client connects directly to selected Main LB</pre>
 
     <h3>Client Request</h3>
 
-    <pre>GET {base_url}/route</pre>
+    <pre>GET https://router.example.com/route</pre>
 
     <h3>Router Response</h3>
 
@@ -258,7 +258,7 @@ Location: https://main-lb-2.example.com</pre>
 
     <h3>Browser Example</h3>
 
-    <pre>fetch("{base_url}/route")
+    <pre>fetch("https://router.example.com/route")
   .then(response =&gt; {
     // The HTTP client/browser follows the redirect.
     return response;
@@ -288,7 +288,7 @@ Location: https://main-lb-2.example.com</pre>
 
     <pre>async function getMainLB() {
   const response = await fetch(
-    "{base_url}/route",
+    "https://router.example.com/route",
     { redirect: "manual" }
   );
 
@@ -320,7 +320,7 @@ const movie = await callAPI("/movies/123");</pre>
 
 async function getMainLB() {
   const response = await axios.get(
-    "{base_url}/route",
+    "https://router.example.com/route",
     {
       maxRedirects: 0,
       validateStatus: status =&gt; status === 307
@@ -394,10 +394,14 @@ go run .</pre>
 <script>
   const base_url = window.location.origin;
 
-  document.getElementById("base-url").textContent = base_url;
+  const baseUrlElement = document.getElementById("base-url");
+  if (baseUrlElement) {
+    baseUrlElement.textContent = base_url;
+  }
 
-  // Replace displayed {base_url} placeholders with the current deployment URL.
-  document.body.innerHTML = document.body.innerHTML.replaceAll("{base_url}", base_url);
+  document.querySelectorAll("pre").forEach((el) => {
+    el.textContent = el.textContent.replaceAll("__ROUTER_BASE_URL__", base_url);
+  });
 </script>
 
 </body>
