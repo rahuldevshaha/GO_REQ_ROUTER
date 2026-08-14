@@ -91,7 +91,7 @@
         clients to a healthy endpoint.
       </p>
 
-      <div class="base-url">http://localhost:8080</div>
+      <div class="base-url" id="base-url">Loading...</div>
     </header>
 
     <h2>API Endpoints</h2>
@@ -390,5 +390,10 @@ Main LB 1</pre>
 go run .</pre>
 
   </div>
+
+<script>
+  document.getElementById("base-url").textContent = window.location.origin;
+</script>
+
 </body>
 </html>
