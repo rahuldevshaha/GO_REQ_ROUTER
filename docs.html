@@ -5,169 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Go Router API Docs</title>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f7f8fa;
-      color: #1f2937;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px 70px;
-    }
-    header {
-      margin-bottom: 35px;
-    }
-    h1 { margin: 0 0 8px; }
-    h2 {
-      margin-top: 36px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #ddd;
-    }
-    h3 { margin-top: 25px; }
-    .muted { color: #6b7280; }
-    .base-url {
-      display: inline-block;
-      background: #111827;
-      color: white;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-family: monospace;
-      margin-top: 10px;
-    }
-    .endpoint {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      margin: 18px 0;
-    }
-    .method {
-      display: inline-block;
-      font-weight: bold;
-      padding: 5px 9px;
-      border-radius: 5px;
-      background: #e5e7eb;
-      margin-right: 8px;
-      font-family: monospace;
-    }
-    code {
-      background: #eef0f2;
-      padding: 2px 5px;
-      border-radius: 4px;
-      font-family: Consolas, monospace;
-    }
-    pre {
-      background: #111827;
-      color: #e5e7eb;
-      padding: 16px;
-      border-radius: 7px;
-      overflow-x: auto;
-      line-height: 1.5;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 11px;
-      text-align: left;
-    }
-    th { background: #f0f1f3; }
+    *{box-sizing:border-box}
+    body{margin:0;background:#f6f7f9;color:#20242a;font-family:Arial,sans-serif;line-height:1.6}
+    .wrap{max-width:920px;margin:auto;padding:42px 20px 70px}
+    header{margin-bottom:35px}
+    h1{margin:0 0 7px;font-size:34px}
+    h2{margin-top:36px;padding-bottom:8px;border-bottom:1px solid #ddd;font-size:21px}
+    h3{margin:22px 0 8px;font-size:17px}
+    .muted{color:#6b7280}
+    .base-url{display:inline-block;margin-top:10px;background:#111827;color:#fff;padding:9px 13px;border-radius:6px;font:14px Consolas,monospace}
+    .card{background:#fff;border:1px solid #e0e3e7;border-radius:8px;padding:18px;margin:14px 0}
+    .method{display:inline-block;font:bold 13px Consolas,monospace;background:#e9eef5;padding:4px 7px;border-radius:4px;margin-right:7px}
+    code{font-family:Consolas,monospace;background:#eef0f2;padding:2px 5px;border-radius:4px}
+    pre{background:#111827;color:#e5e7eb;padding:15px;border-radius:7px;overflow:auto;font:13px/1.55 Consolas,monospace}
+    table{width:100%;border-collapse:collapse;background:#fff}
+    th,td{border:1px solid #ddd;padding:9px;text-align:left}
+    th{background:#f0f1f3}
+    .note{background:#fff8e1;border-left:4px solid #d8a500;padding:10px 13px;margin:14px 0}
   </style>
 </head>
-
 <body>
-  <div class="container">
+<div class="wrap">
 
-    <header>
-      <h1>Go Router API</h1>
-      <p class="muted">
-        Lightweight router that checks Main Load Balancers and redirects
-        clients to a healthy endpoint.
-      </p>
+<header>
+  <h1>Go Router API</h1>
+  <p class="muted">Lightweight Router for selecting an enabled and healthy Main Load Balancer.</p>
+  <div class="base-url" id="base-url">Loading...</div>
+</header>
 
-      <div class="base-url" id="base-url">Loading...</div>
-    </header>
+<h2>1. Deployment</h2>
 
-    <h2>API Endpoints</h2>
+<h3>Single Router</h3>
+<pre>Client
+  |
+  v
+api.example.com
+  |
+  v
+Router
+  |
+  v
+Healthy + Enabled Main LB</pre>
 
-    <div class="endpoint">
-      <h3>
-        <span class="method">GET</span>
-        <code>/</code>
-      </h3>
+<p>One Router handles the incoming routing requests.</p>
 
-      <p>Returns this API documentation page.</p>
+<h3>Multiple Routers</h3>
+<pre>Clients
+   |
+   v
+api.example.com
+   |
+   v
+DNS
+   |
+   +----&gt; Router 1
+   +----&gt; Router 2
+   +----&gt; Router 3
+              |
+              v
+       Healthy + Enabled Main LB</pre>
 
-      <pre>GET __BASE_URL__/</pre>
+<p>
+  DNS distributes clients across the Router instances. Each Router independently
+  checks the configured Main LBs and selects an enabled, healthy Main LB.
+</p>
 
-      <p><strong>Response:</strong></p>
-      <pre>HTML document</pre>
-    </div>
+<div class="note">
+  All Router instances should use the same Main LB configuration so they can
+  make consistent routing decisions.
+</div>
 
-    <div class="endpoint">
-      <h3>
-        <span class="method">GET</span>
-        <code>/health</code>
-      </h3>
+<h2>2. API Endpoints</h2>
 
-      <p>Checks whether the Router itself is running.</p>
+<div class="card">
+  <h3><span class="method">GET</span><code>/</code></h3>
+  <p>Returns this API documentation page.</p>
+  <pre>GET __BASE_URL__/</pre>
+</div>
 
-      <pre>GET __BASE_URL__/health</pre>
+<div class="card">
+  <h3><span class="method">GET</span><code>/health</code></h3>
+  <p>Checks the health of the Router itself.</p>
+  <pre>GET __BASE_URL__/health
 
-      <p><strong>Response:</strong></p>
-      <pre>HTTP/1.1 200 OK
+HTTP/1.1 200 OK
 
 router ok</pre>
-    </div>
+</div>
 
-    <div class="endpoint">
-      <h3>
-        <span class="method">GET</span>
-        <code>/route</code>
-      </h3>
+<div class="card">
+  <h3><span class="method">GET</span><code>/route</code></h3>
+  <p>
+    Selects an <code>enable: true</code> Main LB that passes the health check
+    and redirects the client to it.
+  </p>
 
-      <p>
-        Checks the configured Main LB endpoints and redirects the client
-        to a healthy Main LB.
-      </p>
+  <pre>GET __BASE_URL__/route
 
-      <pre>GET __BASE_URL__/route</pre>
-
-      <p><strong>Healthy LB response:</strong></p>
-
-      <pre>HTTP/1.1 307 Temporary Redirect
+HTTP/1.1 307 Temporary Redirect
 Location: https://lb2.example.com</pre>
 
-      <p>
-        The client/browser follows the <code>Location</code> automatically.
-        The Router does not proxy the actual traffic.
-      </p>
-    </div>
+  <p>The Router does not proxy the actual application/stream traffic.</p>
+</div>
 
-    <div class="endpoint">
-      <h3>503 — No Healthy Main LB</h3>
+<div class="card">
+  <h3>503 — No Eligible Main LB</h3>
+  <p>If no enabled Main LB is healthy:</p>
+  <pre>HTTP/1.1 503 Service Unavailable
 
-      <p>If every configured Main LB fails its health check:</p>
+No enabled healthy Main LB available</pre>
+</div>
 
-      <pre>HTTP/1.1 503 Service Unavailable
+<h2>3. Main LB Configuration</h2>
 
-No healthy Main LB available</pre>
-    </div>
+<p>File: <code>mainLBserver.json</code></p>
 
-    <h2>Main LB Configuration</h2>
-
-    <p>
-      Main LB endpoints are stored in
-      <code>mainLBserver.json</code>.
-    </p>
-
-    <pre>[
+<pre>[
   {
     "name": "main-lb-1",
     "url": "https://lb1.example.com",
@@ -185,138 +138,41 @@ No healthy Main LB available</pre>
   }
 ]</pre>
 
-    <h3>Enable / Disable</h3>
+<table>
+  <tr><th>Field</th><th>Meaning</th></tr>
+  <tr><td><code>name</code></td><td>Main LB name</td></tr>
+  <tr><td><code>url</code></td><td>Main LB endpoint</td></tr>
+  <tr><td><code>enable</code></td><td><code>true</code> = eligible; <code>false</code> = never selected</td></tr>
+</table>
 
-    <p>
-      <code>enable: true</code> means the Main LB is eligible for routing.
-      <code>enable: false</code> completely excludes it from routing, even
-      when its health check is successful.
-    </p>
+<div class="note">
+  A disabled Main LB is never returned, even if its health check succeeds.
+</div>
 
-    <h2>Request Flow</h2>
+<h2>4. Routing Flow</h2>
 
-    <table>
-      <tr>
-        <th>Step</th>
-        <th>Action</th>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Client calls <code>/route</code></td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Router checks Main LB health</td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>Router selects a healthy LB</td>
-      </tr>
-      <tr>
-        <td>4</td>
-        <td>Router returns HTTP 307 redirect</td>
-      </tr>
-      <tr>
-        <td>5</td>
-        <td>Client connects directly to the selected LB</td>
-      </tr>
-    </table>
-
-
-    <h2>Client Integration</h2>
-
-    <p>
-      The client does not need to know the Main LB addresses.
-      It only calls the Router endpoint.
-    </p>
-
-    <pre>Client
+<pre>Client
   |
   | GET /route
   v
-router.example.com
+Router
   |
-  | 307 Temporary Redirect
-  | Location: https://selected-lb.example.com
+  | Check: enable + health
   v
-Client connects directly to selected Main LB</pre>
+Selected Main LB
+  |
+  v
+Client connects directly to Main LB</pre>
 
-    <h3>Client Request</h3>
+<h2>5. Client Integration</h2>
 
-    <pre>GET __BASE_URL__/route</pre>
+<p>
+  The client calls the Router when it needs a Main LB. After receiving the
+  redirect/selected LB, it can use that Main LB directly for normal API calls.
+</p>
 
-    <h3>Router Response</h3>
-
-    <pre>HTTP/1.1 307 Temporary Redirect
-Location: https://main-lb-2.example.com</pre>
-
-    <p>
-      Browsers and normal HTTP clients can follow the redirect automatically.
-      After the redirect, the client communicates directly with the selected
-      Main LB, so Router does not carry the stream/download response traffic.
-    </p>
-
-    <h3>Browser Example</h3>
-
-    <pre>fetch("__BASE_URL__/route")
-  .then(response =&gt; {
-    // The HTTP client/browser follows the redirect.
-    return response;
-  });</pre>
-
-    <h3>Important</h3>
-
-    <p>
-      Multiple Router instances need an entry/distribution mechanism so that
-      <code>router.example.com</code> can reach Router 1, Router 2, Router 3, etc.
-      Simple DNS round-robin distributes DNS answers but does not understand
-      Router load or health. For health/load-aware routing, use a dedicated
-      routing/load-balancing mechanism.
-    </p>
-
-
-    <h2>Client-Side Implementation</h2>
-
-    <p>
-      The recommended client flow is to ask the Router for a Main LB when a
-      server selection is needed, then reuse the selected Main LB for normal
-      API requests. If the selected LB becomes unavailable, request a new
-      route from the Router.
-    </p>
-
-    <h3>Using Fetch</h3>
-
-    <pre>async function getMainLB() {
-  const response = await fetch(
-    "__BASE_URL__/route",
-    { redirect: "manual" }
-  );
-
-  if (response.status !== 307) {
-    throw new Error("No healthy Main LB available");
-  }
-
-  return response.headers.get("Location");
-}
-
-async function callAPI(path) {
-  const baseURL = await getMainLB();
-
-  const response = await fetch(baseURL + path);
-
-  if (!response.ok) {
-    throw new Error("API request failed");
-  }
-
-  return response.json();
-}
-
-// Example
-const movie = await callAPI("/movies/123");</pre>
-
-    <h3>Using Axios</h3>
-
-    <pre>import axios from "axios";
+<h3>Axios</h3>
+<pre>import axios from "axios";
 
 async function getMainLB() {
   const response = await axios.get(
@@ -332,77 +188,332 @@ async function getMainLB() {
 
 async function callAPI(path) {
   const baseURL = await getMainLB();
-
   const response = await axios.get(baseURL + path);
-
   return response.data;
 }
 
-// Example
 const movie = await callAPI("/movies/123");</pre>
 
-    <h3>Recommended LB Reuse</h3>
-
-    <p>
-      Do not call <code>/route</code> before every normal request unless that
-      behavior is specifically required. The client can keep the selected Main
-      LB and use it for requests such as login, movie details, search, etc.
-    </p>
-
-    <pre>Client
+<h3>Recommended Reuse</h3>
+<pre>Client
   |
-  | /route
-  v
-Router
+  +-- /route
+  |      |
+  |      +--&gt; Main LB 2
   |
-  | 307 + Location
-  v
-Main LB 2
-  |
-  +---- /login
-  +---- /movies/123
-  +---- /search?q=...
-  +---- /profile
+  +-- /login       → Main LB 2
+  +-- /movies/123  → Main LB 2
+  +-- /search      → Main LB 2</pre>
 
-If Main LB 2 fails:
-Client
-  |
-  | /route
-  v
-Router
-  |
-  | 307 + Location
-  v
-Main LB 1</pre>
+<p>
+  There is normally no need to call <code>/route</code> before every request.
+  Reuse the selected Main LB until it becomes unavailable.
+</p>
 
-    <h3>Important: Browser CORS</h3>
+<h2>6. Client Failover</h2>
 
-    <p>
-      If browser JavaScript reads the redirect response manually, configure
-      CORS on the Router and allow the required client origin. Alternatively,
-      the application can use a normal HTTP redirect flow where the browser
-      follows the redirect automatically.
-    </p>
+<p>
+  If the selected Main LB fails, request a new route from the Router and retry
+  the request with the newly selected Main LB.
+</p>
 
-    <h2>Run</h2>
+<pre>Client → Router → Main LB 2
+                     |
+                     X
+                     |
+Client → Router → Main LB 1 → Success</pre>
 
-    <pre>go mod tidy
+<pre>async function requestWithFailover(path) {
+  let baseURL = await getMainLB();
+
+  try {
+    return (await axios.get(baseURL + path)).data;
+  } catch {
+    baseURL = await getMainLB();
+    return (await axios.get(baseURL + path)).data;
+  }
+}</pre>
+
+<div class="note">
+  Keep retries limited. Do not retry indefinitely.
+</div>
+
+<h2>7. Multiple Router Setup</h2>
+
+<p>For multiple Router instances, expose them behind the same hostname.</p>
+
+<pre>api.example.com
+      |
+      v
+     DNS
+   /  |  \
+  /   |   \
+ R1   R2   R3
+  \   |   /
+   \  |  /
+    Main LBs</pre>
+
+<p>
+  With simple DNS round-robin, DNS can return different Router addresses.
+  DNS itself does not select the Main LB. The selected Router performs the
+  Main LB health/enable check.
+</p>
+
+
+<h2>8. Free DNS — Cloudflare Round-Robin Setup</h2>
+
+<p>
+  <strong>Cloudflare DNS Free</strong> can be used to distribute clients across
+  multiple Router instances using multiple DNS <code>A</code> records with the
+  same hostname. Cloudflare documents this as simple DNS round-robin.
+</p>
+
+<div class="note">
+  This is DNS distribution, not full health-checked load balancing. If a Router
+  goes down, DNS round-robin may still return its address until DNS/cache behavior
+  changes. The Router itself handles Main LB health checks after a client reaches it.
+</div>
+
+<div class="note">
+  <strong>Using Render (or any host that only gives you a hostname like <code>router1.onrender.com</code>, not a static IP)?</strong>
+  The <code>A</code>-record setup below needs a fixed IPv4 address per Router. Jump to
+  <a href="#render-no-ip">Render Deployments (No Static IP)</a> instead.
+</div>
+
+<h3>What you need</h3>
+<pre>1. A registered domain
+2. Cloudflare account
+3. Multiple Router instances with public IPv4 addresses
+4. The same Router application/config on each instance</pre>
+
+<h3>Step 1 — Add your domain to Cloudflare</h3>
+
+<pre>Cloudflare Dashboard
+      ↓
+Add a domain
+      ↓
+Enter: example.com
+      ↓
+Choose: Free plan
+      ↓
+Review/import existing DNS records</pre>
+
+<p>
+  Cloudflare's normal Free/Pro setup uses Cloudflare as the authoritative DNS
+  provider, so you must update your domain's nameservers at your registrar to
+  the Cloudflare nameservers assigned to your zone.
+</p>
+
+<h3>Step 2 — Deploy multiple Routers</h3>
+
+<pre>Router 1 → 203.0.113.10
+Router 2 → 203.0.113.20
+Router 3 → 203.0.113.30</pre>
+
+<p>
+  Replace these example IPs with the real public IPv4 addresses of your Router
+  servers.
+</p>
+
+<h3>Step 3 — Create DNS records</h3>
+
+<p>
+  In Cloudflare:
+  <code>Dashboard → Your Domain → DNS → Records → Add record</code>
+</p>
+
+<table>
+  <tr><th>Type</th><th>Name</th><th>IPv4 Address</th><th>Proxy</th><th>TTL</th></tr>
+  <tr><td>A</td><td>api</td><td>203.0.113.10</td><td>DNS only</td><td>Auto</td></tr>
+  <tr><td>A</td><td>api</td><td>203.0.113.20</td><td>DNS only</td><td>Auto</td></tr>
+  <tr><td>A</td><td>api</td><td>203.0.113.30</td><td>DNS only</td><td>Auto</td></tr>
+</table>
+
+<p>
+  All three records use the same name: <code>api</code>. The result is:
+  <code>api.example.com</code>.
+</p>
+
+<h3>Step 4 — Why DNS only?</h3>
+
+<p>
+  For this architecture, <code>DNS only</code> lets DNS return the Router IPs
+  directly. If you intentionally put the records behind Cloudflare's proxy,
+  the client connects to Cloudflare instead and the traffic path changes.
+</p>
+
+<h3>Step 5 — Final traffic flow</h3>
+
+<pre>100K Clients
+     |
+     v
+api.example.com
+     |
+     v
+Cloudflare DNS
+     |
+     +----→ Router 1
+     |
+     +----→ Router 2
+     |
+     +----→ Router 3
+              |
+              v
+       Enabled + Healthy
+          Main LB
+              |
+              v
+          Client</pre>
+
+<h3>Step 6 — Test DNS</h3>
+
+<p>After DNS propagation, check that the hostname resolves to the Router IPs.</p>
+
+<pre>nslookup api.example.com
+
+# or
+
+dig api.example.com</pre>
+
+<p>
+  Because DNS caching and resolver behavior exist, you should not expect every
+  client request to rotate perfectly between Router 1, Router 2 and Router 3.
+  Round-robin DNS is simple distribution, not precise request-level balancing.
+</p>
+
+<h3>Important: Router health vs DNS health</h3>
+
+<table>
+  <tr><th>Layer</th><th>Responsibility</th></tr>
+  <tr><td>Cloudflare DNS</td><td>Distributes DNS answers across Router IPs</td></tr>
+  <tr><td>Router</td><td>Checks Main LB <code>enable</code> + health</td></tr>
+  <tr><td>Main LB</td><td>Handles the actual application/API traffic</td></tr>
+</table>
+
+<p>
+  Cloudflare's Free DNS round-robin setup does not replace a health-checked
+  load balancer. For automatic removal of failed Router nodes from DNS answers,
+  use a DNS/load-balancing service with health checks.
+</p>
+
+<h3>Cloudflare Setup Summary</h3>
+
+<pre>1. Buy/use your domain
+2. Add domain to Cloudflare
+3. Change registrar nameservers to Cloudflare
+4. Deploy Router 1, Router 2, Router 3
+5. Get their public IPs
+6. Create 3 A records with the same Name: api
+7. Set records to DNS only
+8. Wait for DNS propagation
+9. Test: api.example.com
+10. Each Router uses the same mainLBserver.json</pre>
+
+<h2 id="render-no-ip">8b. Render Deployments (No Static IP)</h2>
+
+<p>
+  Render (and most PaaS platforms) does not give free services a fixed public IPv4
+  address. Each deployment instead gets its own hostname:
+</p>
+
+<pre>router1.onrender.com
+router2.onrender.com
+router3.onrender.com</pre>
+
+<p>
+  This breaks the <code>A</code>-record round-robin approach in Section 8, since
+  there is no IP to point multiple <code>A</code> records at. It cannot be worked
+  around with multiple <code>CNAME</code> records either &mdash; DNS only allows
+  <strong>one</strong> <code>CNAME</code> per hostname, and Cloudflare rejects a
+  second <code>CNAME</code> on the same name.
+</p>
+
+<pre>api    A     203.0.113.10             ✓ works (round-robin)
+api    A     203.0.113.20             ✓ works (round-robin)
+
+api    CNAME router1.onrender.com     ✓ works alone
+api    CNAME router2.onrender.com     ✗ rejected — only one CNAME per name</pre>
+
+<p>
+  So a single hostname like <code>api.example.com</code> cannot transparently
+  round-robin across several <code>*.onrender.com</code> Routers using free DNS
+  alone. Two practical options:
+</p>
+
+<h3>Option A — Give each Router its own subdomain, let the client pick</h3>
+
+<p>Point one <code>CNAME</code> at each Router:</p>
+
+<pre>router1.example.com  CNAME  router1.onrender.com
+router2.example.com  CNAME  router2.onrender.com
+router3.example.com  CNAME  router3.onrender.com</pre>
+
+<p>
+  The client keeps a small list of Router URLs instead of relying on DNS to
+  distribute traffic, and applies the same pick/retry logic already used for
+  Main LB failover:
+</p>
+
+<pre>const ROUTERS = [
+  "https://router1.example.com",
+  "https://router2.example.com",
+  "https://router3.example.com",
+];
+
+function pickRouter() {
+  return ROUTERS[Math.floor(Math.random() * ROUTERS.length)];
+}
+
+async function getMainLB() {
+  const base = pickRouter();
+  const response = await axios.get(`${base}/route`, {
+    maxRedirects: 0,
+    validateStatus: status =&gt; status === 307,
+  });
+  return response.headers.location;
+}</pre>
+
+<p>
+  This stays entirely on free tiers, but the Router-selection logic moves from
+  DNS into the client.
+</p>
+
+<h3>Option B — Cloudflare Load Balancing (paid)</h3>
+
+<p>
+  Cloudflare's Load Balancing product supports pools of origins addressed
+  <strong>by hostname</strong> (not just IP), with active health checks and
+  automatic failover &mdash; the direct replacement for round-robin
+  <code>A</code> records when your origins are hostnames like
+  <code>*.onrender.com</code>. It is a paid add-on, not part of the Free plan.
+</p>
+
+<table>
+  <tr><th>Approach</th><th>Cost</th><th>DNS complexity</th><th>Health-aware</th></tr>
+  <tr><td>Option A: client-side list</td><td>Free</td><td>Low</td><td>No (client retries on failure)</td></tr>
+  <tr><td>Option B: Cloudflare Load Balancing</td><td>Paid</td><td>Low</td><td>Yes</td></tr>
+  <tr><td><code>A</code>-record round robin (Section 8)</td><td>Free</td><td>Low</td><td>No &mdash; requires static IPs, not available on Render</td></tr>
+</table>
+
+<p>For a small number of Routers, Option A is usually the simplest starting point.</p>
+
+<h2>9. Run</h2>
+
+<pre>go mod tidy
 go run .</pre>
 
-  </div>
+<p>Open <code>__BASE_URL__/</code> to view these docs.</p>
 
-
-
+</div>
 
 <script>
 (() => {
   const base_url = window.location.origin;
-
   const base = document.getElementById("base-url");
   if (base) base.textContent = base_url;
 
-  document.querySelectorAll("pre, code, p").forEach((el) => {
-    el.innerHTML = el.innerHTML.replaceAll("__BASE_URL__", base_url);
+  document.querySelectorAll("pre").forEach((el) => {
+    el.textContent = el.textContent.replaceAll("__BASE_URL__", base_url);
   });
 })();
 </script>
